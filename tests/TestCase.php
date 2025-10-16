@@ -2,9 +2,9 @@
 
 namespace Eighteen73\LaravelTokens\Tests;
 
+use Eighteen73\LaravelTokens\LaravelTokensServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Eighteen73\LaravelTokens\LaravelTokensServiceProvider;
 
 class TestCase extends Orchestra
 {

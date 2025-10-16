@@ -30,7 +30,7 @@ it('can replace tokens in simple relations', function () {
 
     expect($tokens)->toContain('##category.name##');
 
-    $user = new User();
+    $user = new User;
     $user->setRelation('category', new Category(['name' => 'TESTCATEGORY123']));
 
     $text = app(TokenManager::class)
@@ -46,7 +46,7 @@ it('can replace tokens in many relations', function () {
 
     expect($tokens)->toContain('##posts.0.title##');
 
-    $user = new User();
+    $user = new User;
     $user->setRelation('posts', collect(new Post(['title' => 'TESTPOST123'])));
 
     $text = app(TokenManager::class)
