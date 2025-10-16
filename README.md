@@ -1,68 +1,63 @@
-# :package_description
+# A simple package for managing Laravel token replacement from model data
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/eighteen73/laravel-tokens.svg?style=flat-square)](https://packagist.org/packages/eighteen73/laravel-tokens)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/eighteen73/laravel-tokens/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/eighteen73/laravel-tokens/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/eighteen73/laravel-tokens/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/eighteen73/laravel-tokens/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/eighteen73/laravel-tokens.svg?style=flat-square)](https://packagist.org/packages/eighteen73/laravel-tokens)
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+You can use provides an automated way to replace tokens in user-entered text with model/relation data. This is useful for things like email templates.
 
-## Support us
+All unguarded model attributes are available as tokens - as well as relation data accessed through dot notation.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+When model factories are available, the factory definition attributes will also available as tokens, otherwise Model::getAttributes() will be used.
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
+composer require eighteen73/laravel-tokens
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
-```
 
 ## Usage
-
+### List available tokens
 ```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+$tokenManager = new Eighteen73\LaravelTokens\TokenManager();
+
+echo $tokenManager->forModel(App\Models\User::class)->plainTokens();
+```
+
+### Replace tokens in a string
+```php
+$tokenManager = new Eighteen73\LaravelTokens\TokenManager();
+
+echo $tokenManager->forModel(User::factory()->make(['email' => 'test@example.com']))
+    ->replaceTokens("My email address is ##email##.");
+    
+// My email address is test@example.com
+```
+
+### Custom tokens within a model
+```php
+use Eighteen73\LaravelTokens\Contracts\CustomTokens;
+
+class User extends Model implements CustomTokens
+{
+    public function getCustomTokens(): array
+    {
+        return [
+            'my_custom_token' => 'Use this custom text.',
+        ];
+    }
+}
+
+$tokenManager = new Eighteen73\LaravelTokens\TokenManager();
+
+echo $tokenManager->forModel(User::factory()->make())
+    ->replaceTokens("Example text - ##my_custom_token##.");
+
+// Example text - Use this custom text.
 ```
 
 ## Testing
@@ -85,7 +80,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [:author_name](https://github.com/:author_username)
+- [Matt Jones](https://github.com/Muffinman)
 - [All Contributors](../../contributors)
 
 ## License
