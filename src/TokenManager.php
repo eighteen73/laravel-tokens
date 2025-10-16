@@ -92,7 +92,7 @@ class TokenManager
                 $available = $model->getFillable();
             }
         } else {
-            $available = array_keys($model?->getAttributes());
+            $available = array_keys($model->getAttributes());
         }
 
         $hidden = $model->getHidden();
@@ -130,7 +130,8 @@ class TokenManager
         foreach ($methods as $method) {
             if ($method->isPublic() && in_array($method->getReturnType(), [BelongsTo::class, HasOne::class])) {
                 $relation = $model->{$method->getName()}();
-                $relationTokens = (new static($relation->getRelated()))
+                $related = $relation->getRelated();
+                $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName()])
                     ->setDepth($this->currentDepth + 1)
                     ->rawTokens();
@@ -138,7 +139,8 @@ class TokenManager
             }
             if ($method->isPublic() && in_array($method->getReturnType(), [HasMany::class, BelongsToMany::class])) {
                 $relation = $model->{$method->getName()}();
-                $relationTokens = (new static($relation->getRelated()))
+                $related = $relation->getRelated();
+                $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName(), '0'])
                     ->setDepth($this->currentDepth + 1)
                     ->rawTokens();
