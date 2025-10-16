@@ -162,7 +162,7 @@ class TokenManager
         preg_match_all('/##([A-Z0-9_.]+)##/i', $text, $tokens);
 
         // Fetch all relations we might need. Discard any matching model name because those are direct lookups
-        $relations = array_filter($validTokens->toArray(), fn ($token) => Str::contains($token, '.'));
+        $relations = array_filter($tokens[1], fn ($token) => Str::contains($token, '.'));
         $relations = array_map(function (string $relation) {
             return Str::before($relation, '.');
         }, $relations);
@@ -190,9 +190,9 @@ class TokenManager
 
                 if ($relation) {
                     foreach (explode('.', $relation) as $relationName) {
-                        // Handle .0. syntax
-                        if (is_numeric($relationName) && (is_subclass_of($relation, HasMany::class) || is_subclass_of($relation, BelongsToMany::class))) {
-                            $model = $model->values()->get($index);
+                        // Handle .0. syntax - pull the index from the relation / collection
+                        if (is_numeric($relationName) && ($model instanceof HasMany || $model instanceof BelongsToMany || $model instanceof Collection)) {
+                            $model = $model->values()->get($relationName);
                         } else {
                             $model = $model->getRelation($relationName);
                         }
