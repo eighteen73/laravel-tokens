@@ -165,9 +165,17 @@ class TokenManager
 
         // Fetch all relations we might need. Discard any matching model name because those are direct lookups
         $relations = array_filter($tokens[1], fn ($token) => Str::contains($token, '.'));
+
+        // Find parent relation names, and remove any .0 indices
         $relations = array_map(function (string $relation) {
-            return Str::before($relation, '.');
+            $parentRelation = Str::beforeLast($relation, '.');
+            if (is_numeric(array_last(explode('.', $parentRelation)))) {
+                $parentRelation = Str::beforeLast($parentRelation, '.');
+            }
+
+            return $parentRelation;
         }, $relations);
+
         $relations = array_unique($relations);
 
         $this->model->loadMissing(array_unique($relations));
@@ -180,7 +188,6 @@ class TokenManager
             foreach ($tokensToReplace as $token) {
                 $relation = null;
                 $attribute = $token;
-                $index = null;
 
                 if (Str::contains($token, '.')) {
                     $relation = Str::beforeLast($token, '.');
@@ -195,8 +202,10 @@ class TokenManager
                         // Handle .0. syntax - pull the index from the relation / collection
                         if (is_numeric($relationName) && ($model instanceof HasMany || $model instanceof BelongsToMany || $model instanceof Collection)) {
                             $model = $model->values()->get($relationName);
-                        } else {
+                        } elseif ($model->relationLoaded($relationName)) {
                             $model = $model->getRelation($relationName);
+                        } else {
+                            $model = null;
                         }
                     }
                 }
