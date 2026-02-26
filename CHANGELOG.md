@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-tokens` will be documented in this file.
 
+## 1.0.3 - 2026-02-26
+
+Removing debugging - whoops!
+
 ## 1.0.2 - 2026-02-26
 
 Handle missing factory classes
