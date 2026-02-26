@@ -132,7 +132,6 @@ class TokenManager
             if ($method->isPublic() && in_array($method->getReturnType(), [BelongsTo::class, HasOne::class])) {
                 $relation = $model->{$method->getName()}();
                 $related = $relation->getRelated();
-                ray($relation, $related);
                 $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName()])
                     ->setDepth($this->currentDepth + 1)
@@ -142,7 +141,6 @@ class TokenManager
             if ($method->isPublic() && in_array($method->getReturnType(), [HasMany::class, BelongsToMany::class])) {
                 $relation = $model->{$method->getName()}();
                 $related = $relation->getRelated();
-                ray($relation, $related);
                 $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName(), '0'])
                     ->setDepth($this->currentDepth + 1)
