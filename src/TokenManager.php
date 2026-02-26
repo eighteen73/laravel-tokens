@@ -3,6 +3,7 @@
 namespace Eighteen73\LaravelTokens;
 
 use Eighteen73\LaravelTokens\Contracts\CustomTokens;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -86,7 +87,7 @@ class TokenManager
         if (! $model || ! $model->exists) {
             $model = app($this->modelType);
 
-            if (method_exists($this->modelType, 'factory')) {
+            if (method_exists($this->modelType, 'factory') && class_exists(Factory::resolveFactoryName($this->modelType))) {
                 $available = array_keys($this->modelType::factory()->definition());
             } else {
                 $available = $model->getFillable();
@@ -131,6 +132,7 @@ class TokenManager
             if ($method->isPublic() && in_array($method->getReturnType(), [BelongsTo::class, HasOne::class])) {
                 $relation = $model->{$method->getName()}();
                 $related = $relation->getRelated();
+                ray($relation, $related);
                 $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName()])
                     ->setDepth($this->currentDepth + 1)
@@ -140,6 +142,7 @@ class TokenManager
             if ($method->isPublic() && in_array($method->getReturnType(), [HasMany::class, BelongsToMany::class])) {
                 $relation = $model->{$method->getName()}();
                 $related = $relation->getRelated();
+                ray($relation, $related);
                 $relationTokens = (new self($related))
                     ->setRelationPath([...$this->relationPath, $method->getName(), '0'])
                     ->setDepth($this->currentDepth + 1)
