@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-tokens` will be documented in this file.
 
+## 1.0.4 - 2026-03-18
+
+Laravel 13 support
+
 ## 1.0.3 - 2026-02-26
 
 Removing debugging - whoops!
