@@ -164,27 +164,30 @@ class TokenManager
         // preg_match all possible tokens
         preg_match_all('/##([A-Z0-9_.]+)##/i', $text, $tokens);
 
-        // Fetch all relations we might need. Discard any matching model name because those are direct lookups
-        $relations = array_filter($tokens[1], fn ($token) => Str::contains($token, '.'));
-
-        // Find parent relation names, and remove any .0 indices
-        $relations = array_map(function (string $relation) {
-            $parentRelation = Str::beforeLast($relation, '.');
-            if (is_numeric(array_last(explode('.', $parentRelation)))) {
-                $parentRelation = Str::beforeLast($parentRelation, '.');
-            }
-
-            return $parentRelation;
-        }, $relations);
-
-        $relations = array_unique($relations);
-
-        $this->model->loadMissing(array_unique($relations));
-
         // Check for token matches
         if (! empty($tokens[0])) {
-            // This var contains matches without the ## which saves us stripping them
+            // This var contains matches without the ## which saves us stripping them.
+            // Anything the model doesn't recognise is left untouched in the text.
             $tokensToReplace = array_intersect($validTokens->toArray(), $tokens[1]);
+
+            // Fetch all relations we might need. Discard any matching model name because those are direct lookups
+            $relations = array_filter($tokensToReplace, fn ($token) => Str::contains($token, '.'));
+
+            // Find parent relation names, and remove any .0 indices
+            $relations = array_map(function (string $relation) {
+                $parentRelation = Str::beforeLast($relation, '.');
+                if (is_numeric(array_last(explode('.', $parentRelation)))) {
+                    $parentRelation = Str::beforeLast($parentRelation, '.');
+                }
+
+                return $parentRelation;
+            }, $relations);
+
+            $relations = array_unique($relations);
+
+            if (! empty($relations)) {
+                $this->model->loadMissing($relations);
+            }
 
             foreach ($tokensToReplace as $token) {
                 $relation = null;

@@ -54,3 +54,26 @@ it('can replace tokens in many relations', function () {
 
     expect($text)->toBe('Post TESTPOST123');
 });
+
+it('leaves unknown relation tokens untouched instead of throwing', function () {
+    $tokens = app(TokenManager::class)->forModel(User::class)->plainTokens();
+
+    expect($tokens)->not->toContain('##nonexistent.name##');
+
+    $text = app(TokenManager::class)
+        ->forModel(new User)
+        ->replaceTokens('Hello ##nonexistent.name##');
+
+    expect($text)->toBe('Hello ##nonexistent.name##');
+});
+
+it('still replaces valid tokens alongside unknown ones', function () {
+    $user = new User;
+    $user->setRelation('category', new Category(['name' => 'TESTCATEGORY123']));
+
+    $text = app(TokenManager::class)
+        ->forModel($user)
+        ->replaceTokens('##category.name## and ##nonexistent.name##');
+
+    expect($text)->toBe('TESTCATEGORY123 and ##nonexistent.name##');
+});
