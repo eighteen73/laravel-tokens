@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-tokens` will be documented in this file.
 
+## 1.0.6 - 2026-09-08
+
+Fix error caused by referencing undefined relationship in tokens.
+
 ## 1.0.5 - 2026-08-26
 
 Updated documentation.
