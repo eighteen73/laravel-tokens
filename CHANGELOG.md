@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-tokens` will be documented in this file.
 
+## 1.0.5 - 2026-08-26
+
+Updated documentation.
+
 ## 1.0.4 - 2026-03-18
 
 Laravel 13 support
