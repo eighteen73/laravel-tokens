@@ -77,3 +77,18 @@ it('still replaces valid tokens alongside unknown ones', function () {
 
     expect($text)->toBe('TESTCATEGORY123 and ##nonexistent.name##');
 });
+
+it('leaves nested tokens untouched when a relation in the chain is null', function () {
+    $tokens = app(TokenManager::class)->forModel(User::class)->plainTokens();
+
+    expect($tokens)->toContain('##category.owner.name##');
+
+    $user = new User;
+    $user->setRelation('category', null);
+
+    $text = app(TokenManager::class)
+        ->forModel($user)
+        ->replaceTokens('Owner ##category.owner.name##');
+
+    expect($text)->toBe('Owner ##category.owner.name##');
+});

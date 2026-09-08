@@ -206,10 +206,15 @@ class TokenManager
                         // Handle .0. syntax - pull the index from the relation / collection
                         if (is_numeric($relationName) && ($model instanceof HasMany || $model instanceof BelongsToMany || $model instanceof Collection)) {
                             $model = $model->values()->get($relationName);
-                        } elseif ($model->relationLoaded($relationName)) {
+                        } elseif ($model instanceof Model && $model->relationLoaded($relationName)) {
                             $model = $model->getRelation($relationName);
                         } else {
                             $model = null;
+                        }
+
+                        // A broken link in the chain means there is nothing left to look up
+                        if (! $model) {
+                            break;
                         }
                     }
                 }
